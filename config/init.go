@@ -58,7 +58,7 @@ func InitApp() {
 	}, {
 		Name: "Renterdpassword",
 		Prompt: &survey.Password{
-			Message: constants.PasswordInput,
+			Message: constants.PasswordConfirmationInput,
 		},
 		Validate: survey.Required,
 	}}, &answers)

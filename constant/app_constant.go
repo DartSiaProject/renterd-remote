@@ -4,6 +4,7 @@ package constants
 const (
 	WelcomeMessage               = "Welcome to your de renterd-remote interface. \nTo get started, please set the basic application parameters."
 	PasswordInput                = "Please type your password : "
+	PasswordConfirmationInput    = "Please re-type your password : "
 	RenterdPasswordInput         = "Please type your renterd's password : "
 	EmailInput                   = "Please type your email address : "
 	EmailError                   = "You must enter a valid email address"

@@ -19,3 +19,48 @@ Make sure you have installed all of the following prerequisites on your developm
 ```
 
 Now open your browser at `http://localhost:8080`
+
+### Create linux service 
+
+To start renterd-remote with linux systems, follow these steps:
+- You must run first the app to setup it and to create the configuration file named .env
+```console
+> go run .
+```
+
+- Issue the command: 
+```console
+> go build .
+```
+
+- Create the service with the following command :
+```console
+nano /etc/systemd/system/renterd-remote.service
+```
+
+- Save the following instructions in the file
+```console
+[Unit]
+Description=Renterd-Remote service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+WorkingDirectory=/<renterd-remote_folder_location/
+ExecStart=/<renterd-remote_folder_location>/renterd-remote
+
+[Install]
+WantedBy=multi-user.target
+```
+
+- Then active the service :
+```console
+systemctl enable renterd-remote
+```
+
+- Start the service
+```console
+systemctl start  renterd-remote
+```
