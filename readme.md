@@ -57,10 +57,10 @@ WantedBy=multi-user.target
 
 - Then active the service :
 ```console
-systemctl enable renterd-remote
+> systemctl enable renterd-remote
 ```
 
 - Start the service
 ```console
-systemctl start  renterd-remote
+> systemctl start  renterd-remote
 ```
