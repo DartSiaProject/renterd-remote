@@ -18,7 +18,7 @@ Make sure you have installed all of the following prerequisites on your developm
 > go run .
 ```
 
-Now open your browser at `http://localhost:8080`
+Now open your browser at `https://localhost:8080`
 
 ### Create linux service 
 
