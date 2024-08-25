@@ -11,6 +11,6 @@ func Routes(route *gin.Engine) {
 	user := route.Group("/auth")
 
 	//Add routes to router Group
-	user.GET("/login", auth.Login)
+	user.POST("/login", auth.Login)
 	//user.POST("/logout", auth.GetAlbums)
 }

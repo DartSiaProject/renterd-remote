@@ -8,7 +8,7 @@ const (
 	RenterdPasswordInput         = "Please type your renterd's password : "
 	EmailInput                   = "Please type your email address : "
 	EmailError                   = "You must enter a valid email address"
-	PasswordError                = "Your password must be at least 8 characters long, with at least one upper and one lower case letter."
+	PasswordError                = "Your password must be at least 8 characters long, with at least one upper, one lower case letter and one special caracter."
 	ErrorSavingEnvFile           = "Error saving .env file"
 	InvalidCredentials           = "Invalid credentials"
 	SuccessMessage               = "Success"
