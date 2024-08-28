@@ -5,7 +5,7 @@ import (
 	"renterd-remote/config"
 	"renterd-remote/controllers/renterd"
 	"renterd-remote/routes/auth"
-	renterdRuutes "renterd-remote/routes/renterd"
+	renterdRoutes "renterd-remote/routes/renterd"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +33,7 @@ func LaunchWebServer() {
 
 	//Add Routes
 	auth.Routes(router)
-	renterdRuutes.Routes(router)
+	renterdRoutes.Routes(router)
 
 	//Redirect all route to renterd
 	router.NoRoute(renterd.ReverseProxy)
