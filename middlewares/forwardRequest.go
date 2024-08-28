@@ -55,7 +55,8 @@ func DecryptRequest() gin.HandlerFunc {
 		}
 
 		//Get Header request using the field Header in request header
-		header := c.Request.Header.Values("Header")
+		//header := c.Request.Header.Values("Header")
+		header := c.Request.URL.Query()["header"]
 		if len(header) == 0 {
 			fmt.Println(constants.BadRequest)
 			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
