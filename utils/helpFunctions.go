@@ -24,3 +24,14 @@ func StringToHttpHeaderMap(header string) map[string][]string {
 	json.Unmarshal([]byte(header), &jsonMap)
 	return jsonMap
 }
+
+type Result struct {
+	ContentType string `json:"content-type"`
+}
+
+func StringToJSON(header string) Result {
+
+	var jsonMap Result
+	json.Unmarshal([]byte(header), &jsonMap)
+	return jsonMap
+}

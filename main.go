@@ -4,6 +4,7 @@ import (
 	"os"
 	"renterd-remote/config"
 	"renterd-remote/controllers/renterd"
+	"renterd-remote/middlewares"
 	"renterd-remote/routes/auth"
 	renterdRoutes "renterd-remote/routes/renterd"
 
@@ -35,6 +36,7 @@ func LaunchWebServer() {
 	auth.Routes(router)
 	renterdRoutes.Routes(router)
 
+	router.Use(middlewares.DecryptRequest())
 	//Redirect all route to renterd
 	router.NoRoute(renterd.ReverseProxy)
 
@@ -46,10 +48,3 @@ func LaunchWebServer() {
 		router.RunTLS("localhost:8080", "./config/ssl/server.pem", "./config/ssl/server.key")
 	}
 }
-
-/*
-// getAlbums responds with the list of all albums as JSON.
-func getAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, "albums")
-}
-*/
