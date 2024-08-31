@@ -56,23 +56,19 @@ func DecryptRequest() gin.HandlerFunc {
 		//Get Header request using the field Header in request header
 		//header := c.Request.Header.Values("Header")
 		header := c.Request.URL.Query()["header"]
-		if len(header) == 0 {
-			fmt.Println(constants.BadRequest)
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
-			return
-		}
+		if len(header) > 0 {
+			//Descrypt Header request
+			decryptHeader, err := utils.GetAESDecrypted(header[0])
+			if err != nil {
+				fmt.Println(constants.HeaderRequestDecryptionError, " : ", err)
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				return
+			}
 
-		//Descrypt Header request
-		decryptHeader, err := utils.GetAESDecrypted(header[0])
-		if err != nil {
-			fmt.Println(constants.HeaderRequestDecryptionError, " : ", err)
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
-			return
+			//Set Header
+			c.Request.Header.Del("Content-Type")
+			c.Request.Header.Add("Content-Type", utils.StringToJSON(string(decryptHeader)).ContentType)
 		}
-
-		//Set Header
-		c.Request.Header.Del("Content-Type")
-		c.Request.Header.Add("Content-Type", utils.StringToJSON(string(decryptHeader)).ContentType)
 
 		//fmt.Println("Test : ", string(decryptHeader))
 		//Get body
@@ -85,7 +81,7 @@ func DecryptRequest() gin.HandlerFunc {
 			//Descrypt body
 			err1 := json.Unmarshal(body, &bodyData)
 			if err1 != nil {
-				fmt.Println(constants.BodyRequestDecryptionError, " : ", err)
+				fmt.Println(constants.BodyRequestDecryptionError, " : ", err1)
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
 				return
 			}
