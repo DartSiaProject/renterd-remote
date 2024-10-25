@@ -15,7 +15,7 @@ import (
 
 func LoadEnvVariables() {
 	//Load .env file
-	err := godotenv.Load("config.cnf")
+	err := godotenv.Load("./config.cnf")
 
 	if err != nil {
 		// Generate a JWT secret that is 64 characters long with 10 digits, 10 symbols,
@@ -64,14 +64,12 @@ func InitApp() {
 		Validate: survey.Required,
 	}}, &answers)
 
-	fmt.Println("")
-
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	myEnv, _ := godotenv.Read()
+	myEnv, _ := godotenv.Read("./config.cnf")
 	myEnv["USER_EMAIL"] = strings.ToLower(answers.Email)
 	myEnv["USER_KEY"] = utils.CreateSecretKey(answers.Email, answers.Password)
 	myEnv["USER_IV"] = utils.CreateIV(answers.Email, answers.Password)
