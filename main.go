@@ -44,10 +44,10 @@ func LaunchWebServer() {
 	server_address := os.Getenv("SERVER_ADDRESS")
 	server_port := os.Getenv("SERVER_PORT")
 	if server_address != "" && server_port != "" {
-		fmt.Println("Serveur start on port :", server_port)
+		fmt.Println("Server start on port :", server_port)
 		router.RunTLS(server_address+":"+server_port, "./config/ssl/server.pem", "./config/ssl/server.key")
 	} else {
-		fmt.Println("Serveur start on port : 8000")
+		fmt.Println("Server start on port : 8000")
 		router.RunTLS("localhost:8000", "./config/ssl/server.pem", "./config/ssl/server.key")
 	}
 }
