@@ -20,6 +20,8 @@ Make sure you have installed all of the following prerequisites on your developm
 
 Now open your browser at `https://localhost:8080`
 
+PS: users will be able to change the default interface (localhost) to select the one that suits them from the config.cnf file.
+
 ### Create linux service 
 
 To start renterd-remote with linux systems, follow these steps:
