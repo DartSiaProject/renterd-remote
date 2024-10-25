@@ -58,7 +58,7 @@ func InitApp() {
 		Validate: validationHelpers.ValidatePassword,
 	}, {
 		Name: "Renterdpassword",
-		Prompt: &survey.Confirm{
+		Prompt: &survey.Password{
 			Message: constants.RenterdPasswordInput,
 		},
 		Validate: survey.Required,
