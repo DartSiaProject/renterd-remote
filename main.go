@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"renterd-remote/config"
 	"renterd-remote/controllers/renterd"
@@ -26,7 +27,7 @@ func main() {
 }
 
 func LaunchWebServer() {
-	if os.Getenv("GIN_MODE") == "release" {
+	if os.Getenv("GIN_MODE") == "release" || os.Getenv("GIN_MODE") == "" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	//Create router
@@ -43,8 +44,10 @@ func LaunchWebServer() {
 	server_address := os.Getenv("SERVER_ADDRESS")
 	server_port := os.Getenv("SERVER_PORT")
 	if server_address != "" && server_port != "" {
+		fmt.Println("Serveur start on port :", server_port)
 		router.RunTLS(server_address+":"+server_port, "./config/ssl/server.pem", "./config/ssl/server.key")
 	} else {
-		router.RunTLS("localhost:8080", "./config/ssl/server.pem", "./config/ssl/server.key")
+		fmt.Println("Serveur start on port : 8000")
+		router.RunTLS("localhost:8000", "./config/ssl/server.pem", "./config/ssl/server.key")
 	}
 }

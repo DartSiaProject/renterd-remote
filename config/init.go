@@ -15,7 +15,7 @@ import (
 
 func LoadEnvVariables() {
 	//Load .env file
-	err := godotenv.Load()
+	err := godotenv.Load("config.cnf")
 
 	if err != nil {
 		// Generate a JWT secret that is 64 characters long with 10 digits, 10 symbols,
@@ -28,7 +28,7 @@ func LoadEnvVariables() {
 		defaultParams := constants.DefaultParams()
 		defaultParams["JWT_SECRET"] = secret
 
-		err1 := godotenv.Write(defaultParams, "./.env")
+		err1 := godotenv.Write(defaultParams, "./config.cnf")
 		if err1 != nil {
 			log.Fatal(constants.ErrorSavingEnvFile)
 		}
@@ -40,6 +40,7 @@ func InitApp() {
 	answers := struct {
 		Email           string
 		Password        string
+		ConfirmPassword string
 		RenterdPassword string
 	}{}
 
@@ -57,7 +58,7 @@ func InitApp() {
 		Validate: validationHelpers.ValidatePassword,
 	}, {
 		Name: "Renterdpassword",
-		Prompt: &survey.Password{
+		Prompt: &survey.Confirm{
 			Message: constants.RenterdPasswordInput,
 		},
 		Validate: survey.Required,
@@ -76,7 +77,7 @@ func InitApp() {
 	myEnv["USER_IV"] = utils.CreateIV(answers.Email, answers.Password)
 	myEnv["RENTERD_KEY"] = answers.RenterdPassword
 
-	err1 := godotenv.Write(myEnv, "./.env")
+	err1 := godotenv.Write(myEnv, "./config.cnf")
 	if err1 != nil {
 		log.Fatal(constants.ErrorSavingEnvFile)
 	}
