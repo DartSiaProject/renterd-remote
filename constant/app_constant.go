@@ -26,7 +26,7 @@ const (
 func DefaultParams() map[string]string {
 	return map[string]string{
 		"SERVER_ADDRESS":  "localhost",
-		"SERVER_PORT":     "8080",
+		"SERVER_PORT":     "8000",
 		"GIN_MODE":        "debug",
 		"RENTERD_ADDRESS": "localhost:9980",
 	}
