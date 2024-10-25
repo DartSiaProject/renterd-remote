@@ -35,7 +35,7 @@ func ValidatePassword(password interface{}) error {
 
 	str, _ := password.(string)
 
-	if len(str) <= 8 {
+	if len(str) >= 8 {
 		hasMinLen = true
 	}
 	for _, char := range str {
