@@ -31,7 +31,7 @@ func Config() (stopApp bool, Error error) {
 			return true, nil
 		} else {
 			fmt.Println(constants.InitAppNeeded)
-			return true, fmt.Errorf(constants.InitAppNeeded)
+			return true, fmt.Errorf(constants.Error)
 		}
 	} else {
 		fmt.Println(constants.InvalidCommand)

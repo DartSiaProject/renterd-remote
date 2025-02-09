@@ -28,6 +28,7 @@ const (
 	BodyRequestDecryptionError   = "Error during decryption of the body data"
 	InvalidCommand               = "invalid command"
 	InitAppNeeded                = "Error: You need to first initialise the App.\nPlease start the App without the credentials command"
+	Error                        = "error"
 )
 
 func DefaultParams() map[string]string {
