@@ -1,3 +1,5 @@
 .env
 config.cnf
 config/ssl/*
+renterd-remote.exe
+renterd-remote

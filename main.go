@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"renterd-remote/config"
+	"renterd-remote/config/update"
 	"renterd-remote/controllers/renterd"
 	"renterd-remote/middlewares"
 	"renterd-remote/routes/auth"
@@ -17,12 +18,14 @@ func init() {
 }
 
 func main() {
-	//utils.Test()
-	if os.Getenv("USER_EMAIL") == "" || os.Getenv("USER_KEY") == "" {
-		config.InitApp()
-		LaunchWebServer()
-	} else {
-		LaunchWebServer()
+	if stopApp, _ := update.Config(); !stopApp {
+		//utils.Test()
+		if os.Getenv("USER_EMAIL") == "" || os.Getenv("USER_KEY") == "" {
+			config.InitApp()
+			LaunchWebServer()
+		} else {
+			LaunchWebServer()
+		}
 	}
 }
 
@@ -44,10 +47,10 @@ func LaunchWebServer() {
 	server_address := os.Getenv("SERVER_ADDRESS")
 	server_port := os.Getenv("SERVER_PORT")
 	if server_address != "" && server_port != "" {
-		fmt.Println("Server start on port :", server_port)
+		fmt.Println("Server start on ", server_address, ":", server_port)
 		router.RunTLS(server_address+":"+server_port, "./config/ssl/server.pem", "./config/ssl/server.key")
 	} else {
-		fmt.Println("Server start on port : 8000")
+		fmt.Println("Server start on  0.0.0.0:8000")
 		router.RunTLS("localhost:8000", "./config/ssl/server.pem", "./config/ssl/server.key")
 	}
 }
