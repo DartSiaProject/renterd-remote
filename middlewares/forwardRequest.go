@@ -31,7 +31,7 @@ func EncryptResponse(res *httptest.ResponseRecorder, c *gin.Context) error {
 	}
 
 	c.Header("Header", encryptHeader)
-	c.IndentedJSON(res.Result().StatusCode, gin.H{"data": encryptBody})
+	c.IndentedJSON(res.Result().StatusCode, gin.H{"data": encryptBody, "meta": encryptHeader})
 	return nil
 }
 
@@ -92,11 +92,33 @@ func DecryptRequest() gin.HandlerFunc {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
 				return
 			}
+
+			decryptHeader, err := utils.GetAESDecrypted(bodyData["meta"])
+			if err != nil {
+				fmt.Println(constants.BodyRequestDecryptionError, " : ", err)
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				return
+			}
 			c.Request.Body = io.NopCloser(bytes.NewReader(decryptBody))
 
+			url := c.Request.URL
 			c.Request.Header.Del("Content-Length")
 			c.Request.Header.Add("Content-Length", fmt.Sprintf("%d", len(decryptBody)))
+			for key, value := range decryptHeader {
+				c.Request.Header.Add(fmt.Sprintf("%d", key), string(value))
+				if string(value) == "URL" {
+					parsedURL, err := url.Parse(string(value))
+					if err != nil {
+						fmt.Println("Error parsing URL: ", err)
+						c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+						return
+					}
+					url = parsedURL
+				}
+			}
 			c.Request.ContentLength = int64(len(decryptBody))
+
+			c.Request.URL.RawQuery = url.RawQuery
 
 			/*err1 := auth.VerifyToken(auth.ExtractToken(c))
 			if err1 != nil {
