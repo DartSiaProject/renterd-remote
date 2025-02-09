@@ -7,9 +7,11 @@ const (
 	WelcomeMessage               = "Welcome to your renterd-remote interface."
 	GetStartMessage              = "To get started, please set the basic application parameters."
 	ChangeCredentials            = "To change credentials, please set the following parameters."
+	ChangeListenInterface        = "To change ip interface listener, please select one of the following parametres."
 	PasswordInput                = "Please type your password to login through the mobile application : "
 	PasswordConfirmationInput    = "Please re-type your password : "
 	RenterdPasswordInput         = "Please type the renterd's password : "
+	IpInterfaceHandlerInput      = "Please select an interface to handle request for mobile app: "
 	EmailInput                   = "Please type an email address  : "
 	EmailError                   = "You must enter a valid email address"
 	PasswordError                = "Your password must be at least 8 characters long, with at least one upper, one lower case letter and one special caracter."
@@ -29,11 +31,12 @@ const (
 	InvalidCommand               = "invalid command"
 	InitAppNeeded                = "Error: You need to first initialise the App.\nPlease start the App without the credentials command"
 	Error                        = "error"
+	AllIpInterfacesMessage       = "All Interfaces"
 )
 
 func DefaultParams() map[string]string {
 	return map[string]string{
-		"SERVER_ADDRESS":  "",
+		//"SERVER_ADDRESS":  "",
 		"SERVER_PORT":     "8000",
 		"GIN_MODE":        "release",
 		"RENTERD_ADDRESS": "localhost:9980",

@@ -33,6 +33,14 @@ func Config() (stopApp bool, Error error) {
 			fmt.Println(constants.InitAppNeeded)
 			return true, fmt.Errorf(constants.Error)
 		}
+	} else if cmd == "ipinterface" {
+		if os.Getenv("SERVER_ADDRESS") != "" || os.Getenv("SERVER_PORT") != "" || os.Getenv("USER_EMAIL") != "" {
+			changeListenerInterface()
+			return true, nil
+		} else {
+			fmt.Println(constants.InitAppNeeded)
+			return true, fmt.Errorf(constants.Error)
+		}
 	} else {
 		fmt.Println(constants.InvalidCommand)
 		return true, fmt.Errorf(constants.InvalidCommand)
@@ -76,5 +84,41 @@ func resetCredentials() {
 		log.Fatal(constants.ErrorSavingEnvFile)
 	}
 
-	fmt.Println("\n\n", constants.OperationSuccessMessage)
+	fmt.Printf("\n%s\n", constants.OperationSuccessMessage)
+}
+
+func changeListenerInterface() {
+	fmt.Println(constants.WelcomeMessage)
+	fmt.Println(constants.ChangeListenInterface)
+	answers := struct {
+		IpInterfaceHandler string
+	}{}
+
+	err := survey.Ask([]*survey.Question{{
+		Name: "IpInterfaceHandler",
+		Prompt: &survey.Select{
+			Message: constants.IpInterfaceHandlerInput,
+			Options: utils.GetLocalIP(),
+			Default: constants.AllIpInterfacesMessage,
+		},
+	}}, &answers)
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	myEnv, _ := godotenv.Read(constants.DefaultConfigFile)
+	if answers.IpInterfaceHandler == constants.AllIpInterfacesMessage {
+		myEnv["SERVER_ADDRESS"] = ""
+	} else {
+		myEnv["SERVER_ADDRESS"] = answers.IpInterfaceHandler
+	}
+
+	err1 := godotenv.Write(myEnv, constants.DefaultConfigFile)
+	if err1 != nil {
+		log.Fatal(constants.ErrorSavingEnvFile)
+	}
+
+	fmt.Printf("\n%s\n", constants.OperationSuccessMessage)
 }

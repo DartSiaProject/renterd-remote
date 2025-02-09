@@ -39,10 +39,11 @@ func InitApp() {
 	fmt.Println(constants.WelcomeMessage)
 	fmt.Println(constants.GetStartMessage)
 	answers := struct {
-		Email           string
-		Password        string
-		ConfirmPassword string
-		RenterdPassword string
+		Email              string
+		Password           string
+		ConfirmPassword    string
+		RenterdPassword    string
+		IpInterfaceHandler string
 	}{}
 
 	err := survey.Ask([]*survey.Question{{
@@ -63,6 +64,13 @@ func InitApp() {
 			Message: constants.RenterdPasswordInput,
 		},
 		Validate: survey.Required,
+	}, {
+		Name: "IpInterfaceHandler",
+		Prompt: &survey.Select{
+			Message: constants.IpInterfaceHandlerInput,
+			Options: utils.GetLocalIP(),
+			Default: constants.AllIpInterfacesMessage,
+		},
 	}}, &answers)
 
 	if err != nil {
@@ -75,11 +83,16 @@ func InitApp() {
 	myEnv["USER_KEY"] = utils.CreateSecretKey(answers.Email, answers.Password)
 	myEnv["USER_IV"] = utils.CreateIV(answers.Email, answers.Password)
 	myEnv["RENTERD_KEY"] = answers.RenterdPassword
+	if answers.IpInterfaceHandler == constants.AllIpInterfacesMessage {
+		myEnv["SERVER_ADDRESS"] = ""
+	} else {
+		myEnv["SERVER_ADDRESS"] = answers.IpInterfaceHandler
+	}
 
 	err1 := godotenv.Write(myEnv, constants.DefaultConfigFile)
 	if err1 != nil {
 		log.Fatal(constants.ErrorSavingEnvFile)
 	}
 
-	fmt.Println("\n\n", constants.OperationSuccessMessage)
+	fmt.Printf("\n%s\n", constants.OperationSuccessMessage)
 }

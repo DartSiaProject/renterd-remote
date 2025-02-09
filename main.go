@@ -22,6 +22,7 @@ func main() {
 		//utils.Test()
 		if os.Getenv("USER_EMAIL") == "" || os.Getenv("USER_KEY") == "" {
 			config.InitApp()
+			config.LoadEnvVariables()
 			LaunchWebServer()
 		} else {
 			LaunchWebServer()
@@ -47,10 +48,14 @@ func LaunchWebServer() {
 	server_address := os.Getenv("SERVER_ADDRESS")
 	server_port := os.Getenv("SERVER_PORT")
 	if server_address != "" && server_port != "" {
-		fmt.Println("Server start on ", server_address, ":", server_port)
-		router.RunTLS(server_address+":"+server_port, "./config/ssl/server.pem", "./config/ssl/server.key")
+		fmt.Printf("Server start on %s:%s\n", server_address, server_port)
+		err := router.RunTLS(server_address+":"+server_port, "./config/ssl/server.pem", "./config/ssl/server.key")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	} else {
-		fmt.Println("Server start on  0.0.0.0:8000")
+		fmt.Printf("Server start on  0.0.0.0:8000\n")
 		router.RunTLS("localhost:8000", "./config/ssl/server.pem", "./config/ssl/server.key")
 	}
 }
