@@ -68,3 +68,18 @@ WantedBy=multi-user.target
 ```
 
 ### Special commands
+#### Change Credentials 
+
+To reset remote credentials, use the following command and follow the instructions
+
+```console
+> renterd-remote credentials
+```
+
+#### Change Ip Interface Handler
+
+To change the address at which the server can receive connections, use the following commands
+
+```console
+> renterd-remote ipinterface
+```
