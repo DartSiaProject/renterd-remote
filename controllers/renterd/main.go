@@ -27,8 +27,16 @@ func ReverseProxy(c *gin.Context) {
 
 	proxy := &httputil.ReverseProxy{Director: director}
 	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, c.Request)
 
+	// Ajout d'une gestion des erreurs pour capturer les erreurs de proxy
+	proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
+		//println("Error in reverse proxy:", err.Error())
+
+		//log.Printf("[ERROR] Proxy connection failed: %s", err.Error())
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Unable to connect to the target service", "details": err.Error()})
+	}
+
+	proxy.ServeHTTP(rec, c.Request)
 	//Transfert response to encrypt middelware
 	middlewares.EncryptResponse(rec, c)
 }

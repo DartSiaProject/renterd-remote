@@ -32,6 +32,8 @@ const (
 	InitAppNeeded                = "Error: You need to first initialise the App.\nPlease start the App without the credentials command"
 	Error                        = "error"
 	AllIpInterfacesMessage       = "All Interfaces"
+	IncorrectParams              = "incorrect parameters"
+	SliceError                   = "slice bounds out of range"
 )
 
 func DefaultParams() map[string]string {

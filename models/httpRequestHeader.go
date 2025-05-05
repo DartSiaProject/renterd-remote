@@ -1,6 +1,6 @@
 package models
 
-type httpRequestHeader struct {
+type HttpRequestHeader struct {
 	Content_Type              []string `json:"content-type" `
 	Authorization             []string `json:"authorization" `
 	Accept                    []string `json:"accept" `

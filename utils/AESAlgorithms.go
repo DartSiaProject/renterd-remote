@@ -7,8 +7,10 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
+	constants "renterd-remote/constant"
 	"strings"
 )
 
@@ -35,17 +37,30 @@ func GetAESDecrypted(encrypted string) ([]byte, error) {
 
 	mode := cipher.NewCBCDecrypter(block, []byte(iv))
 	mode.CryptBlocks(ciphertext, ciphertext)
-	ciphertext = PKCS5UnPadding(ciphertext)
+	ciphertext, err1 := PKCS5UnPadding(ciphertext)
+
+	if err1 != nil {
+		return nil, err1
+	}
 
 	return ciphertext, nil
 }
 
 // PKCS5UnPadding  pads a certain blob of data with necessary data to be used in AES block cipher
-func PKCS5UnPadding(src []byte) []byte {
+func PKCS5UnPadding(src []byte) ([]byte, error) {
 	length := len(src)
+	if length <= 0 {
+		return nil, errors.New(constants.IncorrectParams)
+	}
 	unpadding := int(src[length-1])
 
-	return src[:(length - unpadding)]
+	if (length-unpadding) >= 0 && (length-unpadding) <= length {
+		return src[:(length - unpadding)], nil
+	} else {
+		return nil, errors.New(constants.SliceError)
+	}
+
+	//return src[:(length - unpadding)], nil
 }
 
 // GetAESEncrypted encrypts given text in AES 256 CBC

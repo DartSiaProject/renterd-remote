@@ -10,7 +10,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JwtSecretKey = []byte(os.Getenv("JWT_SECRET"))
+// JwtSecretKey is the secret key used to sign the JWT tokens. It can be set via the JWT_SECRET environment variable.
+// If not set, it defaults to "default
+var JwtSecretKey = []byte(func() string {
+	if secret := os.Getenv("JWT_SECRET"); secret != "" {
+		return secret
+	}
+	return "1hwGE8Y6nHbPVRA9"
+}())
 
 func CreateToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,

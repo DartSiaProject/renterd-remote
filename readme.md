@@ -66,3 +66,5 @@ WantedBy=multi-user.target
 ```console
 > systemctl start renterd-remote
 ```
+
+### Special commands
