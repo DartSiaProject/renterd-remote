@@ -21,6 +21,7 @@ const (
 	SuccessMessage               = "Success"
 	Unauthorized                 = "Unauthorized"
 	BadRequest                   = "Bad Request"
+	ReverseProxyError            = "Unable to connect to the target service"
 	InternalServerError          = "An internal error occur"
 	HeaderRequestEncryptionError = "Error during encryption of the header data"
 	HeaderRequestDecryptionError = "Error during decryption of the header data"
@@ -34,13 +35,17 @@ const (
 	AllIpInterfacesMessage       = "All Interfaces"
 	IncorrectParams              = "incorrect parameters"
 	SliceError                   = "slice bounds out of range"
+	SqlliteSaveSuccessMessage    = "SQLite database saved successfully"
+	SqlliteRestoreSuccessMessage = "SQLite database restored successfully"
+	FileCorruptedMessage         = "File corrupted, please check the file and try again"
 )
 
 func DefaultParams() map[string]string {
 	return map[string]string{
 		//"SERVER_ADDRESS":  "",
-		"SERVER_PORT":     "8000",
-		"GIN_MODE":        "release",
-		"RENTERD_ADDRESS": "localhost:9980",
+		"SERVER_PORT":        "8000",
+		"GIN_MODE":           "release",
+		"RENTERD_ADDRESS":    "localhost:9980",
+		"SQLITE_BACKUP_PATH": "/backup",
 	}
 }

@@ -2,7 +2,11 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net"
+	"os"
+	"runtime"
 )
 
 func HttpHeaderMapToString(header map[string][]string) string {
@@ -55,4 +59,61 @@ func GetLocalIP() []string {
 		}
 	}
 	return ipAdress
+}
+
+func UserHomeDir() string {
+	if runtime.GOOS == "windows" {
+		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
+		return home
+	} else if runtime.GOOS == "linux" {
+		home := os.Getenv("XDG_CONFIG_HOME")
+		if home != "" {
+			return home
+		}
+	}
+	// For macOS and other OSes, return the HOME environment variable
+	return os.Getenv("HOME")
+}
+
+func GetRenterdDefaultPath() string {
+	home := UserHomeDir()
+	if runtime.GOOS == "windows" {
+		return home + "\\AppData\\Roaming\\Renterd"
+	} else if runtime.GOOS == "linux" {
+		return home + "/.config/renterd"
+	} else if runtime.GOOS == "darwin" {
+		return home + "/Library/Application Support/Renterd"
+	}
+	return ""
+}
+
+func GetDefaultSqliteBackupPath() string {
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	if runtime.GOOS == "windows" {
+		fmt.Println(path + "\\backup\\renterd.sqlite3.bak")
+		return path + "\\backup\\renterd.sqlite3.bak"
+	} else if runtime.GOOS == "linux" {
+		return path + "/backup/renterd.sqlite3.bak"
+	} else if runtime.GOOS == "darwin" {
+		return path + "/backup/renterd.sqlite3.bak"
+	}
+	return ""
+}
+
+func GetSqliteDbDefautPath() string {
+	path := GetRenterdDefaultPath()
+	if runtime.GOOS == "windows" {
+		return path + "\\data\\db\\db.sqlite"
+	} else if runtime.GOOS == "linux" {
+		return path + "/data/db/db.sqlite"
+	} else if runtime.GOOS == "darwin" {
+		return path + "/data/db/db.sqlite"
+	}
+	return ""
 }
