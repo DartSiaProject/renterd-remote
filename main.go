@@ -39,9 +39,10 @@ func LaunchWebServer() {
 
 	//Add Routes
 	auth.Routes(router)
-	renterdRoutes.Routes(router)
 
 	router.Use(middlewares.DecryptRequest())
+	renterdRoutes.Routes(router)
+
 	//Redirect all route to renterd
 	router.NoRoute(renterd.ReverseProxy)
 

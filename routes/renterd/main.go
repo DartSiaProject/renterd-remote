@@ -19,4 +19,10 @@ func Routes(route *gin.Engine) {
 
 	//Restore sqlite db
 	renterd_Routes.POST("/renterd/restoredb", renterd.RestoreSqliteDb)
+
+	//Generate File Share Link
+	renterd_Routes.POST("/renterd/sharelink", renterd.GetShareLink)
+
+	//Get File Share Content
+	renterd_Routes.GET("/renterd/sharefile/:key", renterd.GetShareFile)
 }
