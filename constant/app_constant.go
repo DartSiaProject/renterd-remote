@@ -39,6 +39,7 @@ const (
 	SqlliteRestoreSuccessMessage = "SQLite database restored successfully"
 	FileCorruptedMessage         = "File corrupted, please check the file and try again"
 	NotObjectFoundError          = "Object not found"
+	ShareLinkSuccessMessage      = "Share link created successfully"
 )
 
 func DefaultParams() map[string]string {

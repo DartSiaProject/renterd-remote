@@ -14,6 +14,7 @@ import (
 	constants "renterd-remote/constant"
 	"renterd-remote/middlewares"
 	models "renterd-remote/models"
+	"renterd-remote/responseUtils"
 	utils "renterd-remote/utils"
 	"strings"
 
@@ -39,11 +40,8 @@ func ReverseProxy(c *gin.Context) {
 
 	// Ajout d'une gestion des erreurs pour capturer les erreurs de proxy
 	proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
-		//println("Error in reverse proxy:", err.Error())
-
-		//log.Printf("[ERROR] Proxy connection failed: %s", err.Error())
-
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": constants.ReverseProxyError})
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.ReverseProxyError)
+		//c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": constants.ReverseProxyError})
 		//Transfert response to encrypt middelware
 		middlewares.EncryptResponse(rec, c)
 	}
@@ -100,12 +98,29 @@ func SaveSqliteDb(c *gin.Context) {
 	// Vérifiez si le fichier existe
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		println("File does not exist:", err.Error())
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
+		// Handle the error as needed
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
+		return
+	}
 
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+	// Utilisez c.FileAttachment pour envoyer le fichier
+	// Récupérer le fichier depuis la requête
+	_, err = os.Stat(path)
+	if err != nil {
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
+		return
+	}
+
+	src, err := os.Open(path)
+	if err != nil {
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
+		return
+	}
+	defer src.Close()
+
+	content, err := io.ReadAll(src)
+	if err != nil {
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
 		return
 	}
 
@@ -115,33 +130,6 @@ func SaveSqliteDb(c *gin.Context) {
 	rec.Header().Add("Cache-Control", "no-cache")
 	rec.Header().Add("Pragma", "no-cache")
 	rec.Header().Add("Expires", "0")
-
-	// Utilisez c.FileAttachment pour envoyer le fichier
-	// Récupérer le fichier depuis la requête
-	_, err = os.Stat(path)
-	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
-		return
-	}
-
-	src, err := os.Open(path)
-	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
-		return
-	}
-	defer src.Close()
-
-	content, err := io.ReadAll(src)
-	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
-		return
-	}
 
 	rec.Body.Write(content)
 	//Transfert response to encrypt middelware
@@ -158,11 +146,7 @@ func RestoreSqliteDb(c *gin.Context) {
 	buffer := make([]byte, c.Request.ContentLength)
 	_, err := c.Request.Body.Read(buffer)
 	if err != nil && err != io.EOF {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest + `, "error": "` + err.Error() + `"}`))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.BadRequest)
 		return
 	}
 	file := bytes.NewReader(buffer)
@@ -170,11 +154,7 @@ func RestoreSqliteDb(c *gin.Context) {
 	// Create the destination file
 	dst, err := os.Create(path)
 	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
 		return
 	}
 	defer dst.Close()
@@ -182,11 +162,7 @@ func RestoreSqliteDb(c *gin.Context) {
 	// Copy the contents of the downloaded file to the destination file
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusInternalServerError)
-		rec.Body.Write([]byte(`{"message":` + constants.InternalServerError + `, "error": "` + err.Error() + `"}`))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusInternalServerError, err.Error(), constants.InternalServerError)
 		return
 	}
 
@@ -203,12 +179,7 @@ func GetShareLink(c *gin.Context) {
 
 	bodyAsBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		// Handle error
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.BadRequest)
 		return
 	}
 	//bodyParams := make(map[string]interface{})
@@ -217,11 +188,7 @@ func GetShareLink(c *gin.Context) {
 
 	// Check if the path is empty
 	if bodyParams.Key == "" || bodyParams.Bucket == "" {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, constants.BadRequest, constants.BadRequest)
 		return
 	}
 
@@ -245,12 +212,7 @@ func GetShareLink(c *gin.Context) {
 
 	respBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil || string(respBodyBytes) == "object not found\n" {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusNotFound)
-		//fmt.Println("Error on response.\n[ERROR] -", err)
-		rec.Body.Write([]byte(`{"message":` + constants.NotObjectFoundError))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusNotFound, constants.NotObjectFoundError, constants.NotObjectFoundError)
 		return
 	}
 
@@ -258,54 +220,47 @@ func GetShareLink(c *gin.Context) {
 	json.Unmarshal(respBodyBytes, &respBody)
 	defer res.Body.Close()
 
-	// Définissez les en-têtes pour indiquer que c'est un téléchargement de fichier
-	rec.Header().Add("Content-Type", "application/json")
-
 	fileKey := strings.Split(respBody["key"].(string), "/")
 	dataOfLink := "{\"bucket\": \"" + bodyParams.Bucket + "\", \"key\": \"" + bodyParams.Key + "\", \"filename\": \"" + fileKey[len(fileKey)-1] + "\"}"
 	encrypt, err := utils.GetAESEncrypted([]byte(dataOfLink))
 	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, constants.BadRequest, constants.BadRequest)
+		return
 	}
 
+	link := "\"\\renterd\\sharefile\\" + string(base64.URLEncoding.EncodeToString([]byte(encrypt))) + "\""
+	fmt.Println("Link : ", link)
+	responseUtils.SuccessJsonResponse(rec, c, http.StatusOK, map[string]any{"Link": link}, constants.ShareLinkSuccessMessage)
+
+	// Définissez les en-têtes pour indiquer que c'est un téléchargement de fichier
+	/*rec.Header().Add("Content-Type", "application/json")
 	//fmt.Println("Encrypt : ", encrypt)
 	link := "{\"Link\": \"\\renterd\\sharefile\\" + string(base64.URLEncoding.EncodeToString([]byte(encrypt))) + "\"}"
 	fmt.Println("Link : ", link)
+
+	responseUtils.SuccessJsonResponse(rec, c, http.StatusOK, map[string]any{"Link": link}, constants.ShareLinkSuccessMessage)
 	rec.Body.Write([]byte(link))
 	//Transfert response to encrypt middelware
-	middlewares.EncryptResponse(rec, c)
+	middlewares.EncryptResponse(rec, c)*/
 }
 
 func GetShareFile(c *gin.Context) {
 	rec := httptest.NewRecorder()
 	key := c.Param("key")
 	if key == "" {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, constants.BadRequest, constants.BadRequest)
 		return
 	}
 
 	decodedKey, err := base64.URLEncoding.DecodeString(key)
 	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest + `, "error": "` + err.Error() + `"}`))
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.BadRequest)
 		return
 	}
 
 	decryptParams, err := utils.GetAESDecrypted(string(decodedKey))
 	if err != nil {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.BadRequest)
 		return
 	}
 
@@ -315,11 +270,7 @@ func GetShareFile(c *gin.Context) {
 
 	// Check if the path is empty
 	if bodyParams.Key == "" || bodyParams.Bucket == "" {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusBadRequest)
-		rec.Body.Write([]byte(`{"message":` + constants.BadRequest))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, constants.BadRequest, constants.BadRequest)
 		return
 	}
 
@@ -343,12 +294,7 @@ func GetShareFile(c *gin.Context) {
 
 	respBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil || res.StatusCode == http.StatusNotFound {
-		rec.Header().Set("Content-Type", "application/json")
-		rec.WriteHeader(http.StatusNotFound)
-		//fmt.Println("Error on response.\n[ERROR] -", err)
-		rec.Body.Write([]byte(`{"message":` + constants.NotObjectFoundError))
-		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		responseUtils.ErrorResponse(rec, c, http.StatusNotFound, err.Error(), constants.NotObjectFoundError)
 		return
 	}
 
