@@ -220,6 +220,11 @@ func GetShareLink(c *gin.Context) {
 	json.Unmarshal(respBodyBytes, &respBody)
 	defer res.Body.Close()
 
+	if respBody["key"] == nil {
+		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, constants.BadRequest, constants.BadRequest)
+		return
+	}
+
 	fileKey := strings.Split(respBody["key"].(string), "/")
 	dataOfLink := "{\"bucket\": \"" + bodyParams.Bucket + "\", \"key\": \"" + bodyParams.Key + "\", \"filename\": \"" + fileKey[len(fileKey)-1] + "\"}"
 	encrypt, err := utils.GetAESEncrypted([]byte(dataOfLink))
@@ -228,8 +233,8 @@ func GetShareLink(c *gin.Context) {
 		return
 	}
 
-	link := "\"\\renterd\\sharefile\\" + string(base64.URLEncoding.EncodeToString([]byte(encrypt))) + "\""
-	fmt.Println("Link : ", link)
+	link := `\renterd\sharefile\` + string(base64.URLEncoding.EncodeToString([]byte(encrypt)))
+	//fmt.Println("Link : ", link)
 	responseUtils.SuccessJsonResponse(rec, c, http.StatusOK, map[string]any{"Link": link}, constants.ShareLinkSuccessMessage)
 
 	// Définissez les en-têtes pour indiquer que c'est un téléchargement de fichier
