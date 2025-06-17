@@ -23,7 +23,15 @@ func EncryptResponse(res *httptest.ResponseRecorder, c *gin.Context) error {
 		return err
 	}
 
-	encryptBody, err := utils.GetAESEncrypted(res.Body.Bytes())
+	responseBody := res.Body.Bytes()
+	if res.Result().Header.Get("Content-Type") == "application/json" {
+		if len(responseBody) > 0 && responseBody[len(responseBody)-1] == '\n' {
+			// Remove the newline character
+			responseBody = responseBody[:len(responseBody)-1]
+		}
+	}
+
+	encryptBody, err := utils.GetAESEncrypted(responseBody)
 	if err != nil {
 		fmt.Println(constants.BodyRequestEncryptionError, " : z ", err)
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})

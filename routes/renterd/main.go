@@ -14,6 +14,15 @@ func Routes(route *gin.Engine) {
 	//renterd_Routes.Use(middlewares.JwtAuthMiddleware())
 	//renterd_Routes.Use(middlewares.DecryptRequest())
 
-	//Add routes to router Group
-	renterd_Routes.GET("/api/bus/accounts", renterd.ReverseProxy)
+	//Save sqlite db
+	renterd_Routes.GET("/renterd/savedb", renterd.SaveSqliteDb)
+
+	//Restore sqlite db
+	renterd_Routes.POST("/renterd/restoredb", renterd.RestoreSqliteDb)
+
+	//Generate File Share Link
+	renterd_Routes.POST("/renterd/sharelink", renterd.GetShareLink)
+
+	//Get File Share Content
+	renterd_Routes.GET("/renterd/sharefile/:key", renterd.GetShareFile)
 }
