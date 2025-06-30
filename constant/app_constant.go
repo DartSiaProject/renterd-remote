@@ -37,6 +37,8 @@ const (
 	SliceError                   = "slice bounds out of range"
 	SqlliteSaveSuccessMessage    = "SQLite database saved successfully"
 	SqlliteRestoreSuccessMessage = "SQLite database restored successfully"
+	UploadFileSuccessMessage     = "File upload successfully"
+	DownloadFileSuccessMessage   = "File download successfully"
 	FileCorruptedMessage         = "File corrupted, please check the file and try again"
 	NotObjectFoundError          = "Object not found"
 	ShareLinkSuccessMessage      = "Share link created successfully"

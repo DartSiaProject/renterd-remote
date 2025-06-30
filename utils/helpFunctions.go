@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -96,7 +95,6 @@ func GetDefaultSqliteBackupPath() string {
 		log.Println(err.Error())
 	}
 	if runtime.GOOS == "windows" {
-		fmt.Println(path + "\\backup\\renterd.sqlite3.bak")
 		return path + "\\backup\\renterd.sqlite3.bak"
 	} else if runtime.GOOS == "linux" {
 		return path + "/backup/renterd.sqlite3.bak"
@@ -106,7 +104,7 @@ func GetDefaultSqliteBackupPath() string {
 	return ""
 }
 
-func GetSqliteDbDefautPath() string {
+func GetSqliteDbDefaultPath() string {
 	path := GetRenterdDefaultPath()
 	if runtime.GOOS == "windows" {
 		return path + "\\data\\db\\db.sqlite"
@@ -114,6 +112,21 @@ func GetSqliteDbDefautPath() string {
 		return path + "/data/db/db.sqlite"
 	} else if runtime.GOOS == "darwin" {
 		return path + "/data/db/db.sqlite"
+	}
+	return ""
+}
+
+func GetDefaultFilesPath(filename string) string {
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	if runtime.GOOS == "windows" {
+		return path + "\\files\\" + filename
+	} else if runtime.GOOS == "linux" {
+		return path + "/backup/" + filename
+	} else if runtime.GOOS == "darwin" {
+		return path + "/backup/" + filename
 	}
 	return ""
 }
