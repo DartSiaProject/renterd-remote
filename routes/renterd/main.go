@@ -25,4 +25,11 @@ func Routes(route *gin.Engine) {
 
 	//Get File Share Content
 	renterd_Routes.GET("/renterd/sharefile/:key", renterd.GetShareFile)
+
+	//Save sqlite db
+	renterd_Routes.GET("/renterd/uploadlargefile", renterd.UploadLargeFile)
+
+	//Restore sqlite db
+	renterd_Routes.POST("/renterd/downloadlargefile", renterd.DownloadLargeFile)
+
 }
