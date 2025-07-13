@@ -12,7 +12,7 @@ import (
 	"net/http/httputil"
 	"os"
 	constants "renterd-remote/constant"
-	"renterd-remote/middlewares"
+	"renterd-remote/middlewares/encryptMiddleware"
 	models "renterd-remote/models"
 	"renterd-remote/responseUtils"
 	utils "renterd-remote/utils"
@@ -47,12 +47,12 @@ func ReverseProxy(c *gin.Context) {
 		responseUtils.ErrorResponse(rec, c, http.StatusBadRequest, err.Error(), constants.ReverseProxyError)
 		//c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": constants.ReverseProxyError})
 		//Transfert response to encrypt middelware
-		middlewares.EncryptResponse(rec, c)
+		encryptMiddleware.EncryptResponse(rec, c)
 	}
 
 	proxy.ServeHTTP(rec, c.Request)
 	//Transfert response to encrypt middelware
-	middlewares.EncryptResponse(rec, c)
+	encryptMiddleware.EncryptResponse(rec, c)
 }
 
 type BackupStruct struct {
@@ -137,7 +137,7 @@ func SaveSqliteDb(c *gin.Context) {
 
 	rec.Body.Write(content)
 	//Transfert response to encrypt middelware
-	middlewares.EncryptResponse(rec, c)
+	encryptMiddleware.EncryptResponse(rec, c)
 }
 
 // Restore SQlLite database from mobile app
@@ -175,7 +175,7 @@ func RestoreSqliteDb(c *gin.Context) {
 	rec.Body.Write([]byte(`{"message":` + constants.SqlliteRestoreSuccessMessage + `}`))
 
 	// Transfert response to encrypt middleware
-	middlewares.EncryptResponse(rec, c)
+	encryptMiddleware.EncryptResponse(rec, c)
 }
 
 func DownloadLargeFile(c *gin.Context) {

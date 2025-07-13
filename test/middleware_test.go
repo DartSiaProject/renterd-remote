@@ -10,7 +10,8 @@ import (
 	"testing"
 
 	"renterd-remote/controllers/renterd"
-	middlewares "renterd-remote/middlewares"
+	"renterd-remote/middlewares/decryptMiddleware"
+	"renterd-remote/middlewares/encryptMiddleware"
 	testContext "renterd-remote/test/context"
 
 	models "renterd-remote/models"
@@ -54,7 +55,7 @@ func TestEncryptTrafficHandler(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 		c.Request = r
 
-		middlewares.EncryptResponse(rr, c)
+		encryptMiddleware.EncryptResponse(rr, c)
 	})
 
 	// Set the request method and URL parameters
@@ -93,7 +94,7 @@ func TestDecryptTrafficHandler(t *testing.T) {
 	ctx, engine := gin.CreateTestContext(w)
 
 	// Set the request header
-	engine.Use(middlewares.DecryptRequest())
+	engine.Use(decryptMiddleware.DecryptRequest())
 
 	// Create a request
 	req, err := http.NewRequestWithContext(ctx, "POST", "/", bytes.NewBuffer(out))

@@ -6,7 +6,7 @@ import (
 	"renterd-remote/config"
 	"renterd-remote/config/update"
 	"renterd-remote/controllers/renterd"
-	"renterd-remote/middlewares"
+	"renterd-remote/middlewares/decryptMiddleware"
 	"renterd-remote/routes/auth"
 	renterdRoutes "renterd-remote/routes/renterd"
 
@@ -40,7 +40,7 @@ func LaunchWebServer() {
 	//Add Routes
 	auth.Routes(router)
 
-	router.Use(middlewares.DecryptRequest())
+	router.Use(decryptMiddleware.DecryptRequest())
 	renterdRoutes.Routes(router)
 
 	//Redirect all route to renterd

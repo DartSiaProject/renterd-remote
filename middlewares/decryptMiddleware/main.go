@@ -1,4 +1,4 @@
-package middlewares
+package decryptMiddleware
 
 import (
 	"bytes"
@@ -9,43 +9,16 @@ import (
 	"net/http/httptest"
 	"net/url"
 	constants "renterd-remote/constant"
+	"renterd-remote/responseUtils"
 	"renterd-remote/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Encrypt request's data
-func EncryptResponse(res *httptest.ResponseRecorder, c *gin.Context) error {
-	encryptHeader, err := utils.GetAESEncrypted([]byte(utils.HttpHeaderMapToString(res.Result().Header)))
-	if err != nil {
-		fmt.Println(constants.HeaderRequestEncryptionError, " : ", err)
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
-		return err
-	}
-
-	responseBody := res.Body.Bytes()
-	if res.Result().Header.Get("Content-Type") == "application/json" {
-		if len(responseBody) > 0 && responseBody[len(responseBody)-1] == '\n' {
-			// Remove the newline character
-			responseBody = responseBody[:len(responseBody)-1]
-		}
-	}
-
-	encryptBody, err := utils.GetAESEncrypted(responseBody)
-	if err != nil {
-		fmt.Println(constants.BodyRequestEncryptionError, " : z ", err)
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
-		return err
-	}
-
-	c.Header("Header", encryptHeader)
-	c.IndentedJSON(res.Result().StatusCode, gin.H{"data": encryptBody})
-	return nil
-}
-
 // Decrypt request's data
 func DecryptRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		rec := httptest.NewRecorder()
 		params := c.Request.URL.Query()["params"]
 		//fmt.Println("params :", c.Request.URL.Query())
 		if len(params) > 0 {
@@ -53,7 +26,9 @@ func DecryptRequest() gin.HandlerFunc {
 			decryptParams, err := utils.GetAESDecrypted(params[0])
 			if err != nil {
 				fmt.Println(constants.HeaderRequestDecryptionError, " : ", err)
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				//c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				responseUtils.ErrorResponse(rec, c, http.StatusUnauthorized, constants.Unauthorized, constants.Unauthorized)
+				c.Abort()
 				return
 			}
 
@@ -69,7 +44,9 @@ func DecryptRequest() gin.HandlerFunc {
 			decryptHeader, err := utils.GetAESDecrypted(header[0])
 			if err != nil {
 				fmt.Println(constants.HeaderRequestDecryptionError, " : ", err)
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				//c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				responseUtils.ErrorResponse(rec, c, http.StatusUnauthorized, constants.Unauthorized, constants.Unauthorized)
+				c.Abort()
 				return
 			}
 
@@ -90,14 +67,18 @@ func DecryptRequest() gin.HandlerFunc {
 			err1 := json.Unmarshal(body, &bodyData)
 			if err1 != nil {
 				fmt.Println(constants.BodyRequestDecryptionError, " : ", err1)
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				//c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				responseUtils.ErrorResponse(rec, c, http.StatusUnauthorized, constants.Unauthorized, constants.Unauthorized)
+				c.Abort()
 				return
 			}
 
 			decryptBody, err := utils.GetAESDecrypted(bodyData["data"])
 			if err != nil {
-				fmt.Println(constants.BodyRequestDecryptionError, " : ", err)
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				fmt.Println(constants.BodyRequestDecryptionError, " 1: ", err)
+				//c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": constants.Unauthorized, "message": constants.Unauthorized})
+				responseUtils.ErrorResponse(rec, c, http.StatusUnauthorized, constants.Unauthorized, constants.Unauthorized)
+				c.Abort()
 				return
 			}
 			c.Request.Body = io.NopCloser(bytes.NewReader(decryptBody))
