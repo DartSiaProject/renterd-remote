@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"renterd-remote/middlewares"
+	"renterd-remote/middlewares/encryptMiddleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func ErrorResponse(rec *httptest.ResponseRecorder, c *gin.Context, statusCode in
 	rec.Body.Write([]byte(`{"message":"` + message + `", "error": "` + errorMessage + `"}`))
 
 	//Transfert response to encrypt middelware
-	middlewares.EncryptResponse(rec, c)
+	encryptMiddleware.EncryptResponse(rec, c)
 }
 
 func SuccessJsonResponse(rec *httptest.ResponseRecorder, c *gin.Context, statusCode int, data map[string]any, message string) {
@@ -39,5 +39,5 @@ func SuccessJsonResponse(rec *httptest.ResponseRecorder, c *gin.Context, statusC
 	rec.Body.Write(responseJSON)
 
 	//Transfert response to encrypt middelware
-	middlewares.EncryptResponse(rec, c)
+	encryptMiddleware.EncryptResponse(rec, c)
 }
